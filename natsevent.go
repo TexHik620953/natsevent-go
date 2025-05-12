@@ -9,7 +9,7 @@ import (
 )
 
 // Routing
-type EventHandler func(msg jetstream.Msg)
+type EventHandler func(c NatsEventContext)
 type Route struct {
 	Subject   string
 	Handler   EventHandler
@@ -115,7 +115,13 @@ func (e *natsEventServiceImpl) StartWithContext(ctx context.Context) error {
 
 		consumeContext, err := consumer.Consume(
 			func(msg jetstream.Msg) {
-				route.Handler(msg)
+				ctx, cancell := context.WithTimeout(context.Background(), e.opts.HandlerTimeout)
+				defer cancell()
+
+				nCtx := NewNatsRPCContext(ctx, msg)
+
+				route.Handler(nCtx)
+
 				msg.Ack() // Явное подтверждение обработки
 			},
 		)

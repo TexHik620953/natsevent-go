@@ -10,18 +10,20 @@ type NatsEventOptionsFunc func(*NatsEventOptions)
 
 func GetDefaultOptions() NatsEventOptions {
 	return NatsEventOptions{
-		StreamName:   "EVENTS",
-		SubjectRoot:  "events",
-		StreamMaxAge: time.Hour,
+		StreamName:     "EVENTS",
+		SubjectRoot:    "events",
+		StreamMaxAge:   time.Hour,
+		HandlerTimeout: time.Second * 10,
 	}
 }
 
 // Options
 
 type NatsEventOptions struct {
-	StreamName   string
-	SubjectRoot  string
-	StreamMaxAge time.Duration
+	StreamName     string
+	SubjectRoot    string
+	StreamMaxAge   time.Duration
+	HandlerTimeout time.Duration
 }
 
 func WithStreamName(name string) NatsEventOptionsFunc {
@@ -37,5 +39,10 @@ func WithSubjectRoot(name string) NatsEventOptionsFunc {
 func WithStreamMaxAge(maxAge time.Duration) NatsEventOptionsFunc {
 	return func(ho *NatsEventOptions) {
 		ho.StreamMaxAge = maxAge
+	}
+}
+func WithHandlerTimeout(timeout time.Duration) NatsEventOptionsFunc {
+	return func(ho *NatsEventOptions) {
+		ho.HandlerTimeout = timeout
 	}
 }
